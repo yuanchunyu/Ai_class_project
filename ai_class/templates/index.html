@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+<meta charset=utf-8 />
+<title>CUNY PROJECT DEMO</title>
+<!--[if IE]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<style>
+  article, aside, figure, footer, header, hgroup, 
+  menu, nav, section { display: block; }
+  #but{
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    color: #fff;
+    border: 1px solid #004487;
+    background-image: -webkit-gradient(linear, top, bottom, from(#5288bd), to(#2f659a));
+    background-image: -webkit-linear-gradient(top, #5288bd, #2f659a);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.4), inset 0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 1px 0px rgba(255, 255, 255, .7);
+    text-shadow: 0px -1px 0px black;
+    cursor: pointer;
+    
+    border-radius: 5px;
+    display: block;
+    width: 130px;
+     margin: 4px 20px;
+}
+  #button1{
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    color: #fff;
+    border: 1px solid #004487;
+    background-image: -webkit-gradient(linear, top, bottom, from(#3208bd), to(#2f659a));
+    background-image: -webkit-linear-gradient(top, #3208bd, #2f659a);
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.4), inset 0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 1px 0px rgba(255, 255, 255, .7);
+    text-shadow: 0px -1px 0px black;
+    cursor: pointer;
+    
+    border-radius: 5px;
+    display: block;
+    width: 130px;
+     margin: 4px 20px;
+}
+ #button2{
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    color: #fff;
+    border: 1px solid #004487;
+    background-image: -webkit-gradient(linear, top, bottom, from(#3208bd), to(#ff0000 ));
+    background-image: -webkit-linear-gradient(top, #3208bd, #ff0000 );
+    box-shadow: inset 0px 1px 0px rgba(255, 255, 255, 0.4), inset 0px 0px 0px 1px rgba(255, 255, 255, 0.2), 0px 1px 0px rgba(255, 255, 255, .7);
+    text-shadow: 0px -1px 0px black;
+    cursor: pointer;
+    
+    border-radius: 5px;
+    display: block;
+    width: 130px;
+     margin: 4px 20px;
+}
+#imageFile{
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+ 
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+    }
+#imageFile,
+#draw,
+#button1,
+#button2,
+#but{
+    display: inline-block;
+    vertical-align: top;
+}
+</style>
+</head>
+<body>
+<div >
+
+
+<input id="imageFile" name="imageFile" type="file" class="imageFile"  accept="image/*"   /> 
+
+
+ <input type="submit" id='but' align="right" height="300" onclick="myFunction();" value="Predict image" name="submit_button"/>
+
+<canvas id="draw" width="150" height="150"></canvas>
+<button id ='button1' name='clear' onclick="myclear()">clear</button>
+ <input type="submit" id='button2' align="right" height="300" onclick="mynewFunction();" value="Predict draw" name="submit_button"/>
+
+</div>
+
+<img src="" id="preview"  height="150" >
+<img src="" id="output">
+<p id="b64"></p>
+
+
+
+
+<br/>
+
+
+<div >    
+
+    <div style="position: absolute; bottom: 70px;">
+    <h2>AI class (C Sc 74010) project demo</h2>
+    </div>
+        <div style="position: absolute; bottom: 70px;">
+    Author: Chunyu Yuan
+    </div>
+        <div style="position: absolute; bottom: 50px;">
+    github: yuanchunyu
+    </div>
+            <div style="position: absolute; bottom: 30px;">
+    email: cyuan1@gradcenter.cuny.edu /  cy1281@nyu.edu
+    </div>
+</div>
+<script>
+  const canvas = document.querySelector('#draw');
+  // could be 3d, if you want to make a video game
+  const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = "black";
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = 'white';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let isDrawing = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  function draw(e) {
+    // stop the function if they are not mouse down
+    if(!isDrawing) return;
+    //listen for mouse move event
+    console.log(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  }
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    [lastX, lastY] = [e.offsetX, e.offsetY];
+  });
+
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', () => isDrawing = false);
+  canvas.addEventListener('mouseout', () => isDrawing = false);
+  
+</script>
+<script>
+
+
+var base;
+$(document).ready(function() {
+
+    $('#imageFile').change(function(evt) {
+
+        var files = evt.target.files;
+        var file = files[0];
+
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            if (window.File && window.FileReader && window.FileList && window.Blob) {
+        var filesToUploads = document.getElementById('imageFile').files;
+        var file = filesToUploads[0];
+        if (file) {
+
+            var reader = new FileReader();
+            // Set the image once loaded into file reader
+            reader.onload = function(e) {
+
+                var img = document.createElement("img");
+                img.src = e.target.result;
+
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+
+                var MAX_WIDTH = 100;
+                var MAX_HEIGHT = 100;
+                var width = img.width;
+                var height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                dataurl = canvas.toDataURL(file.type);
+               // document.getElementById('output').src = dataurl;
+                base=dataurl;
+                console.log(dataurl)
+            }
+            reader.readAsDataURL(file);
+
+        }
+
+    } else {
+        alert('The File APIs are not fully supported in this browser.');
+    }
+        }
+    });
+});
+
+
+
+
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+ <script>
+ 
+function myFunction() {
+let name=base;// JSON.stringify(base);
+//let name = prompt("Enter a name : ");
+    $.ajax({
+        url: "/api/?name=" + name
+    }).done(function(res) {
+       // alert(res.name);
+        document.getElementById("b64").innerHTML=res.name;
+    });
+
+
+
+}
+function myclear(){
+  const canvas = document.querySelector('#draw');
+  // could be 3d, if you want to make a video game
+  const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = "black";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+}
+function mynewFunction() {
+document.getElementById('preview').src='';
+var base1;
+var canvas = document.getElementById("draw");
+
+base1 = canvas.toDataURL();
+let newname=base1;// JSON.stringify(base);
+//let name = prompt("Enter a name : ");
+    $.ajax({
+        url: "/ap/?name=" + newname
+    }).done(function(res) {
+       // alert(res.name);
+        document.getElementById("b64").innerHTML=res.name;
+    });
+
+
+
+}
+
+
+ 
+ </script>
+    
+    
+
+</body>
+</html>
